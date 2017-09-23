@@ -13,17 +13,18 @@ ENV    ADMIN_PW toor
 ENV    ADMIN_EMAIL root@localhost.net
 
 
-# Download and install everything from the repos.
-RUN    apt-get --yes update; apt-get --yes upgrade; apt-get --yes install software-properties-common
+# Install dependencies.
+RUN    apt-get --yes update; apt-get --yes upgrade; apt-get --yes install software-properties-common  \
+       && apt-get --yes install openssl curl openjdk-8-jdk tar python lib32gcc1 lib32tinfo5 lib32z1 lib32stdc++6 \
+       nginx mysql-client mysql-server php-fpm php-cli php-curl php-mysql php-mcrypt ssh expect git  \
+       && apt-get clean \
+       && apt-get autoclean \
+       && apt-get autoremove \
+       && phpenmod mcrypt \
+       && mkdir -p /etc && cd /etc
 
-RUN    apt-get --yes install openssl curl openjdk-8-jdk tar python lib32gcc1 lib32tinfo5 lib32z1 lib32stdc++6 \
-       nginx mysql-client mysql-server php-fpm php-cli php-curl php-mysql php-mcrypt ssh expect git && \
-       phpenmod mcrypt
-
-# Download PufferPannel
-
-RUN    mkdir -p /etc && cd /etc  && \
-       curl -L -o pufferpanel.tar.gz https://git.io/vDz1T && \
+# Install PufferPanel       
+RUN    curl -L -o pufferpanel.tar.gz https://git.io/v53Jp && \
        tar -xf pufferpanel.tar.gz && \
        rm pufferpanel.tar.gz && \
        cd pufferpanel
@@ -34,8 +35,8 @@ ADD    ./scripts/install.exp /etc/install
 
 
 # Fix all permissions
-RUN    chmod +x /start
-RUN    chmod +x /etc/install
+RUN    chmod +x /start && \
+       chmod +x /etc/install
 
 # 5657 for SFTP
 EXPOSE 5657
